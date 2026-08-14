@@ -1,0 +1,5 @@
+(library
+ (name dsmr_engine)
+ (libraries core digestif))
+
+(include_subdirs qualified)

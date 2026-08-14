@@ -1,0 +1,4 @@
+(executable
+ (public_name dsmr-engine)
+ (name main)
+ (libraries dsmr_engine core digestif))
