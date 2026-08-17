@@ -1,4 +1,8 @@
 open Dsmr_engine.State_machine
+open Dsmr_engine.Write_ahead_log
+
+
+let filename = "log01.wal"
 
 let main () =
 	let log_entries = [
@@ -16,14 +20,32 @@ let main () =
 
 	let state_machine_2 = State_machine.create () in
 	let final_sm_2 = apply_entries state_machine_2 in
-	let hash_2 = State_machine.state_hash final_sm_2 in
+	let hash_2 = State_machine.state_hash final_sm_2 in (
 
-	if String.equal hash_1 hash_2 then
-		Printf.printf "Hashes match! (%s)\n" hash_1
+		if String.equal hash_1 hash_2 then
+			Printf.printf "Hashes match! (%s)\n" hash_1
 
-	else
-		Printf.printf "Hash mismatch: %s != %s\n" hash_1 hash_2
+		else
+			Printf.printf "Hash mismatch: %s != %s\n" hash_1 hash_2
+	);
 
+	let wal = Write_ahead_log.initialize filename in
+	let wal_seq = Write_ahead_log.load_entries wal in
 
+	let rebooted_sm = Seq.fold_left (fun acc log_entry ->
+		let sm, _ = State_machine.apply acc log_entry in
+		sm
+	) (State_machine.create ()) wal_seq in
+
+	let hash_3 = State_machine.state_hash rebooted_sm in (
+	
+		if String.equal hash_1 hash_3 then
+			Printf.printf "Hashes match! (%s)\n" hash_1
+
+		else
+			Printf.printf "Hash mismatch: %s != %s\n" hash_1 hash_3
+	);
+	
+	()
 
 let () = main ()
