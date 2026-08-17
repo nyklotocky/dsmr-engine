@@ -13,6 +13,7 @@ module Response = struct
 		| Value of string option
 		| Cas_failed of string option
 		| Error of string
+	[@@deriving sexp, compare, equal]
 end
 
 module Log_entry = struct
@@ -37,7 +38,7 @@ module State_machine = struct
 	let apply state_machine (log_entry : Log_entry.t) =
 		let next_applied_index = Int64.(state_machine.last_applied_index + 1L) in
 		if not (Int64.equal log_entry.index next_applied_index) then
-			(state_machine, Response.Error "Received out of sequence index")
+			(state_machine, Response.Error (Printf.sprintf "Received out of sequence index (Expected %Li, found %Li" next_applied_index log_entry.index))
 		else
 			match log_entry.command with
 			| Put { key; value }-> ({
@@ -59,7 +60,10 @@ module State_machine = struct
 						last_applied_index = next_applied_index
 					}, Response.Ok)
 				else
-					(state_machine, Response.Cas_failed curr_value)
+					({
+            storage = state_machine.storage;
+            last_applied_index = next_applied_index;
+          }, Response.Cas_failed curr_value)
 
 	let state_hash state_machine =
 		let open Digestif in
