@@ -1,3 +1,8 @@
 (test
  (name test_dsmr_engine)
  (libraries dsmr_engine alcotest core digestif))
+
+
+(test
+ (name test_fuzz_state_machine)
+ (libraries dsmr_engine qcheck qcheck-alcotest core digestif))
