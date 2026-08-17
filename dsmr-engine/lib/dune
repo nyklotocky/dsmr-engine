@@ -1,6 +1,6 @@
 (library
  (name dsmr_engine)
- (libraries core digestif)
+ (libraries core digestif crc)
  (preprocess (pps ppx_jane)))
 
 (include_subdirs qualified)
