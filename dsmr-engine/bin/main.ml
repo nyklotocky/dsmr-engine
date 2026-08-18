@@ -41,12 +41,11 @@ let main () =
 	) (State_machine.create ()) wal_seq in
 
 	let hash_3 = State_machine.state_hash rebooted_sm in (
-	
 		if String.equal hash_1 hash_3 then
 			Printf.printf "Hashes match! (%s)\n" hash_1
 
 		else
-			Printf.printf "Hash mismatch: %s != %s\n" hash_1 hash_3
+			Printf.printf "Hash mismatch: %s != %s\n\tLast index: %Li\n" hash_1 hash_3 rebooted_sm.last_applied_index
 	);
 	
 	()
