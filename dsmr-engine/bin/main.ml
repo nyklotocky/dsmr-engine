@@ -30,6 +30,9 @@ let main () =
 	);
 
 	let wal = Write_ahead_log.initialize filename in
+
+	(* List.iter (fun le -> Write_ahead_log.write_entry wal le) log_entries; *)
+
 	let wal_seq = Write_ahead_log.load_entries wal in
 
 	let rebooted_sm = Seq.fold_left (fun acc log_entry ->
