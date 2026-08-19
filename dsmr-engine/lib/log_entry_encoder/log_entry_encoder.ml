@@ -33,7 +33,7 @@ open State_machine
 				K bytes target
 	*)
 	
-	module Log_entry_encoder = struct
+module Log_entry_encoder = struct
 	let decode_command buffer command_type =
 		let decode_value start =
 			let value_length = Int32.to_int (Bytes.get_int32_le buffer start) in
@@ -54,12 +54,12 @@ open State_machine
 				
 				if has_expected = 1 then
 					let expected_length, expected = decode_value (26 + key_length) in
-					(expected_length, Some expected)
+					(expected_length + 4, Some expected)
 				else
 					(0, None)
-					) in
+      ) in
 					
-			let _, target = decode_value (30 + key_length + expected_length) in
+			let _, target = decode_value (26 + key_length + expected_length) in
 			
 			Compare_and_swap { key; expected; target }
 		|_ -> failwith "Invalid command type found in log entry"
@@ -73,7 +73,7 @@ open State_machine
 			Bytes.blit_string value 0 buffer (start + 4) val_len_int;
 			val_len_int in
 
-		let cmd_start = 25 in
+		let cmd_start = 21 in
 		
 		(
 		match command with
@@ -114,11 +114,8 @@ open State_machine
 		)
 		in
 
-		let buffer = Bytes.create (25 + command_size) in
+		let buffer = Bytes.create (21 + command_size) in
 		
-		(* Write size of payload *)
-		Bytes.set_int32_le buffer 0 (Int32.of_int (21 + command_size));
-		(* Write checksum *)
 		let command_type = match log_entry.command with
 			| Put _ -> 1
 			| Delete _ -> 2
@@ -126,10 +123,10 @@ open State_machine
 		let payload_string = encode_command buffer log_entry.command in
 		let checksum = compute_checksum log_entry.index log_entry.timestamp command_type payload_string in
 
-		Bytes.set_int32_le buffer 4 checksum;
-		Bytes.set_int64_le buffer 8 log_entry.index;
-		Bytes.set_int64_le buffer 16 log_entry.timestamp;
-		Bytes.set_uint8 buffer 24 command_type;
+		Bytes.set_int32_le buffer 0 checksum;
+		Bytes.set_int64_le buffer 4 log_entry.index;
+		Bytes.set_int64_le buffer 12 log_entry.timestamp;
+		Bytes.set_uint8 buffer 20 command_type;
 		buffer
 
 	let decode (buffer : Bytes.t) : Log_entry.t option =
