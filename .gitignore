@@ -36,3 +36,5 @@ setup.log
 _opam/
 
 *.wal
+
+*.DS_Store
