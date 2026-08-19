@@ -5,6 +5,7 @@ module Command = struct
 		| Put of { key : string; value : string }
 		| Delete of { key : string }
 		| Compare_and_swap of { key : string; expected : string option; target : string }
+	[@@deriving sexp, compare, equal]
 end
 
 module Response = struct
@@ -22,6 +23,7 @@ module Log_entry = struct
 		timestamp : int64;
 		command : Command.t;
 	}
+	[@@deriving sexp, compare, equal]
 end
 
 module State_machine = struct

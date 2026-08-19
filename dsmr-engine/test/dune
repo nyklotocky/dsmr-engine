@@ -6,3 +6,7 @@
 (test
  (name test_fuzz_state_machine)
  (libraries dsmr_engine qcheck qcheck-alcotest core digestif))
+
+(test
+ (name test_log_entry_encoder)
+ (libraries dsmr_engine alcotest core digestif))

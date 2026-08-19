@@ -7,7 +7,6 @@ module Write_ahead_log = struct
     input_channel : In_channel.t;
   }
 
-
   let initialize filename =
     {
       output_channel = Out_channel.open_gen [Open_wronly; Open_append; Open_binary] 0o666 filename;
@@ -16,6 +15,11 @@ module Write_ahead_log = struct
 
   let write_entry wal log_entry =
     let encoded_entry = Log_entry_encoder.encode log_entry in
+    
+    let size_buffer = Bytes.create 4 in
+    Bytes.set_int32_le size_buffer 0 (Int32.of_int (Bytes.length encoded_entry));
+    
+    Out_channel.output_bytes wal.output_channel size_buffer;
     Out_channel.output_bytes wal.output_channel encoded_entry;
     Out_channel.flush wal.output_channel
 
