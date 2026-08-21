@@ -44,21 +44,21 @@ module State_machine = struct
 		else
 			match log_entry.command with
 			| Put { key; value }-> ({
-				 storage = String.Map.set state_machine.storage ~key:key ~data:value;
+				 storage = Map.set state_machine.storage ~key:key ~data:value;
 				 last_applied_index = next_applied_index
 				}, Response.Ok)
 			| Delete { key } -> (
-				let prev_value = String.Map.find state_machine.storage key in
+				let prev_value = Map.find state_machine.storage key in
 				({
-					storage = String.Map.remove state_machine.storage key;
+					storage = Map.remove state_machine.storage key;
 					last_applied_index = next_applied_index
 				}, Response.Value prev_value)
 			)
 			| Compare_and_swap { key; expected; target } ->
-				let curr_value = String.Map.find state_machine.storage key in
+				let curr_value = Map.find state_machine.storage key in
 				if Option.equal String.equal curr_value expected then
 					({
-						storage = String.Map.set state_machine.storage ~key:key ~data:target;
+						storage = Map.set state_machine.storage ~key:key ~data:target;
 						last_applied_index = next_applied_index
 					}, Response.Ok)
 				else
@@ -77,7 +77,7 @@ module State_machine = struct
 			let hash3 = SHA256.feed_string hash2 value_len in
 			SHA256.feed_string hash3 data in
 		let hash_context = SHA256.init () in
-		let hashed_state = String.Map.fold state_machine.storage ~init:hash_context ~f:hash_function in
+		let hashed_state = Map.fold state_machine.storage ~init:hash_context ~f:hash_function in
 
 		SHA256.to_hex (SHA256.get hashed_state)
 
