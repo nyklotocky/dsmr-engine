@@ -2,3 +2,15 @@
  (public_name dsmr-engine)
  (name main)
  (libraries dsmr_engine core digestif))
+
+(executable
+ (name raft_node)
+ (public_name raft_node)
+ (modules raft_node)
+ (libraries core async dsmr_engine))
+
+(executable
+ (name cluster_init)
+ (public_name cluster_init)
+ (modules cluster_init)
+ (libraries core async core_unix))
